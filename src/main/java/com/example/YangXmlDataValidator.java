@@ -1,3 +1,5 @@
+package com.example;
+
 import com.ctc.wstx.stax.WstxInputFactory;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.codec.xml.XmlParserStream;
@@ -16,7 +18,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-public class YangXmlValidator {
+public class YangXmlDataValidator {
 
     private static final YangParserFactory PARSER_FACTORY;
 
@@ -74,7 +76,7 @@ public class YangXmlValidator {
             String xpath = xpathMap.get(reader.getLocation().getLineNumber());
             System.err.println("\nLine " + reader.getLocation().getLineNumber() +
                     ", Column " + reader.getLocation().getColumnNumber()
-                    + "\nFor XPath: " + xpath
+                    + "\nFor XPath: " + xpath.substring(5) // Remove the leading "/root"
                     + "\nError: " + MessageProcessor.processMessage(e.getMessage()));
         } finally {
             reader.close();
