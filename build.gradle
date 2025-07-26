@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+application {
+    mainClass = 'YangXmlValidator'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.opendaylight.yangtools:yang-parser-impl:14.0.14'
+    implementation 'org.opendaylight.yangtools:yang-data-impl:14.0.14'
+    implementation 'org.opendaylight.yangtools:yang-model-api:14.0.14'
+    implementation 'org.opendaylight.yangtools:yang-test-util:14.0.14'
+    implementation 'org.opendaylight.yangtools:yang-data-codec-xml:14.0.14'
+    implementation 'com.fasterxml.woodstox:woodstox-core:6.5.1'
+    implementation 'com.google.guava:guava:32.1.2-jre'
+    
+    // SLF4J logging dependencies
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+}

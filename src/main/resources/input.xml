@@ -1,0 +1,9 @@
+<root><network xmlns="http://example.com/sample">
+  <name>myname</name>
+  <type>LAN</type>
+  <configuration>
+    <ip-address>235</ip-address>
+    <subnet>255.255.255.0</subnet>
+    <enabled>true</enabled>
+  </configuration>
+</network></root>

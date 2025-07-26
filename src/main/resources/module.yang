@@ -1,0 +1,32 @@
+module sample-module {
+  namespace "http://example.com/sample";
+  prefix sm;
+
+  revision "2023-01-01";
+
+  container network {
+    leaf name {
+      type string;
+    }
+    leaf type {
+      type enumeration {
+        enum LAN;
+        enum WAN;
+        enum VPN;
+      }
+    }
+    container configuration {
+      leaf ip-address {
+        type string {
+          pattern '[0-9][0-9]';
+        }
+      }
+      leaf subnet {
+        type string;
+      }
+      leaf enabled {
+        type boolean;
+      }
+    }
+  }
+}
