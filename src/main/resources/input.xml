@@ -1,9 +1,9 @@
-<root><network xmlns="http://example.com/sample">
-  <name>myname</name>
+<network xmlns="http://example.com/sample">
+  <name>gNBCP</name>
   <type>LAN</type>
   <configuration>
-    <ip-address>235</ip-address>
+    <ip-address>233</ip-address>
     <subnet>255.255.255.0</subnet>
-    <enabled>true</enabled>
+    <enabled>true3</enabled>
   </configuration>
-</network></root>
+</network>
