@@ -63,6 +63,9 @@ public class YangXmlDataValidator {
 
         XMLStreamReader reader = factory.createXMLStreamReader(byteArrayInputStream);
         Map<Integer, String> xpathMap = XPathCreator.createXPathMap(xmlText);
+        
+        // print the XPath map for debugging
+        xpathMap.forEach((line, xpath) -> System.out.println("Line " + line + ": " + xpath));
 
         try {
             NormalizationResultHolder result = new NormalizationResultHolder();

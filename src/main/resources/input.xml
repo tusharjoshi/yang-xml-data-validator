@@ -6,7 +6,7 @@
   </property>
 
   <property>
-    <name><NetworkProperty2/></name>
+    <name>NetworkProperty2</name>
   </property>
 
   <configuration>
