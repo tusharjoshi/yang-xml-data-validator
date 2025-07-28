@@ -15,6 +15,11 @@ module sample-module {
         enum VPN;
       }
     }
+    list property {
+      leaf name {
+        type string;
+      }
+    }
     container configuration {
       leaf ip-address {
         type string {

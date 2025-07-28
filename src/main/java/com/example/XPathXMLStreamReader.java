@@ -10,14 +10,32 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * XMLStreamReader that tracks the XPath of elements
+ */
 public class XPathXMLStreamReader implements XMLStreamReader {
     private final XMLStreamReader delegate;
-    private final Stack<String> elementStack = new Stack<>();
+    private final Stack<ElementInfo> elementStack = new Stack<>();
+    private final Stack<Map<String, Integer>> elementCountStack = new Stack<>();
     private String currentXPath = "/";
     private final Map<Integer, String> xpathMap = new HashMap<>();
+    
+    private static class ElementInfo {
+        String name;
+        int index;
+        boolean hasMultipleOccurrences;
+        
+        ElementInfo(String name, int index, boolean hasMultipleOccurrences) {
+            this.name = name;
+            this.index = index;
+            this.hasMultipleOccurrences = hasMultipleOccurrences;
+        }
+    }
 
     public XPathXMLStreamReader(XMLStreamReader delegate) {
         this.delegate = delegate;
+        // Initialize with root level element count map
+        elementCountStack.push(new HashMap<>());
     }
 
     public Map<Integer, String> getXpathMap() {
@@ -254,11 +272,35 @@ public class XPathXMLStreamReader implements XMLStreamReader {
     private void updateXPath(int event) {
         switch (event) {
             case XMLStreamConstants.START_ELEMENT:
-                elementStack.push(delegate.getLocalName());
+                String elementName = delegate.getLocalName();
+                
+                // Get current level element counts
+                Map<String, Integer> currentCounts = elementCountStack.peek();
+                
+                // Update count for this element
+                int count = currentCounts.getOrDefault(elementName, 0);
+                currentCounts.put(elementName, count + 1);
+                
+                // If this is the second occurrence, we need to retroactively update previous entries
+                if (count == 1) {
+                    // This is the second occurrence, so now we know there are multiple
+                    updatePreviousXPathsForElement(elementName);
+                }
+                
+                // Determine if this element has multiple occurrences
+                boolean hasMultiple = count > 0; // If count > 0, we've seen this element before
+                
+                // Push element info to the stack
+                elementStack.push(new ElementInfo(elementName, count, hasMultiple));
+                
+                // Create new level for child elements
+                elementCountStack.push(new HashMap<>());
                 break;
+                
             case XMLStreamConstants.END_ELEMENT:
                 if (!elementStack.isEmpty()) {
                     elementStack.pop();
+                    elementCountStack.pop();
                 }
                 break;
         }
@@ -268,12 +310,62 @@ public class XPathXMLStreamReader implements XMLStreamReader {
             xpathMap.put(delegate.getLocation().getLineNumber(), currentXPath);
         }
     }
+    
+    private void updatePreviousXPathsForElement(String elementName) {
+        // When we encounter the second occurrence of an element, 
+        // retroactively update all previous XPath entries to add [0] to the first occurrence
+        String currentPath = getCurrentPathWithoutIndices();
+        
+        for (Map.Entry<Integer, String> entry : xpathMap.entrySet()) {
+            String xpath = entry.getValue();
+            if (xpath.contains(currentPath + elementName)) {
+                // Check if this xpath refers to the first occurrence (without index)
+                String pattern = currentPath + elementName;
+                if (xpath.equals(pattern) || xpath.startsWith(pattern + "/")) {
+                    // Replace the element name with element name + [0]
+                    String updatedXPath = xpath.replace(pattern, pattern + "[0]");
+                    xpathMap.put(entry.getKey(), updatedXPath);
+                }
+            }
+        }
+    }
+    
+    private String getCurrentPathWithoutIndices() {
+        if (elementStack.isEmpty()) {
+            return "/";
+        } else {
+            StringBuilder xpath = new StringBuilder("/");
+            for (int i = 0; i < elementStack.size(); i++) {
+                if (i > 0) {
+                    xpath.append("/");
+                }
+                ElementInfo element = elementStack.get(i);
+                xpath.append(element.name);
+                // Don't add indices here, we want the raw path
+            }
+            return xpath.toString() + "/";
+        }
+    }
 
     private void buildXPath() {
         if (elementStack.isEmpty()) {
             currentXPath = "/";
         } else {
-            currentXPath = "/" + String.join("/", elementStack);
+            StringBuilder xpath = new StringBuilder("/");
+            for (int i = 0; i < elementStack.size(); i++) {
+                if (i > 0) {
+                    xpath.append("/");
+                }
+                ElementInfo element = elementStack.get(i);
+                xpath.append(element.name);
+                
+                // Add index if this element has multiple occurrences OR if it's the current element being processed
+                // and we know it will have siblings (count > 0)
+                if (element.hasMultipleOccurrences || element.index > 0) {
+                    xpath.append("[").append(element.index).append("]");
+                }
+            }
+            currentXPath = xpath.toString();
         }
     }
 }
