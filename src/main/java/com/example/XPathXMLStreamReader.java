@@ -18,7 +18,8 @@ public class XPathXMLStreamReader implements XMLStreamReader {
     private final Stack<ElementInfo> elementStack = new Stack<>();
     private final Stack<Map<String, Integer>> elementCountStack = new Stack<>();
     private String currentXPath = "/";
-    private final Map<Integer, String> xpathMap = new HashMap<>();
+    private final Map<String, String> xpathMap = new HashMap<>();
+    private int elementCounter = 0; // Counter to ensure unique keys
     
     private static class ElementInfo {
         String name;
@@ -38,7 +39,7 @@ public class XPathXMLStreamReader implements XMLStreamReader {
         elementCountStack.push(new HashMap<>());
     }
 
-    public Map<Integer, String> getXpathMap() {
+    public Map<String, String> getXpathMap() {
         return xpathMap;
     }
 
@@ -305,9 +306,14 @@ public class XPathXMLStreamReader implements XMLStreamReader {
                 break;
         }
         buildXPath();
-        Integer lineNumber = delegate.getLocation().getLineNumber();
-        if (null == xpathMap.get(lineNumber)) {
-            xpathMap.put(delegate.getLocation().getLineNumber(), currentXPath);
+        
+        // Create a unique key: lineNumber + elementCounter + elementName (for START_ELEMENT only)
+        if (event == XMLStreamConstants.START_ELEMENT) {
+            elementCounter++;
+            String elementName = delegate.getLocalName();
+            Integer lineNumber = delegate.getLocation().getLineNumber();
+            String uniqueKey = lineNumber + ":" + elementCounter + ":" + elementName;
+            xpathMap.put(uniqueKey, currentXPath);
         }
     }
     
@@ -316,7 +322,7 @@ public class XPathXMLStreamReader implements XMLStreamReader {
         // retroactively update all previous XPath entries to add [0] to the first occurrence
         String currentPath = getCurrentPathWithoutIndices();
         
-        for (Map.Entry<Integer, String> entry : xpathMap.entrySet()) {
+        for (Map.Entry<String, String> entry : xpathMap.entrySet()) {
             String xpath = entry.getValue();
             if (xpath.contains(currentPath + elementName)) {
                 // Check if this xpath refers to the first occurrence (without index)

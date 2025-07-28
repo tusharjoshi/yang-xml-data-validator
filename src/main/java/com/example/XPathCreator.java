@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class XPathCreator {
-    public static Map<Integer, String> createXPathMap(String xmlText) throws
+    public static Map<String, String> createXPathMap(String xmlText) throws
             XMLStreamException {
         XMLInputFactory factory = new WstxInputFactory();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xmlText.getBytes(StandardCharsets.UTF_8));

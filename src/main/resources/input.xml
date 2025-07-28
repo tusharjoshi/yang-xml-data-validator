@@ -1,13 +1,7 @@
 <network xmlns="http://example.com/sample">
   <name>gNBCP</name>
   <type>LAN</type>
-  <property>
-    <name>NetworkProperty</name>
-  </property>
-
-  <property>
-    <name>NetworkProperty2</name>
-  </property>
+  <property><name>NetworkProperty</name></property><property><name>NetworkProperty2</name></property>
 
   <configuration>
     <ip-address>234</ip-address>
