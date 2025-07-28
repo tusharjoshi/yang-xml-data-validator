@@ -16,6 +16,10 @@ public class MessageProcessor {
     private static Map<String, String> createReplacementsMap() {
         replacementsMap = new HashMap<>();
         replacementsMap.put("regular expression \\'\\[0-9\\]\\[0-9\\]\\'", "XX");
+        replacementsMap.put(
+            "Element content can not contain child START_ELEMENT when using Typed Access methods", 
+            "Invalid value for element content"
+            );
         return replacementsMap;
     }
 }
